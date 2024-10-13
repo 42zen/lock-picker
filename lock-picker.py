@@ -17,7 +17,7 @@ try:
     from urllib3.exceptions import ReadTimeoutError
     from argparse import ArgumentParser
     from dotenv import load_dotenv
-    from os import getenv, mkdir
+    from os import getenv, mkdir, getcwd
     from os.path import join, exists
     from time import sleep
     from hashlib import sha256
@@ -45,7 +45,7 @@ def main():
     args = parser.parse_args()
 
     # load the github api key
-    load_dotenv()
+    load_dotenv(join(getcwd(), '.env'))
     github_api_key = getenv('GITHUB_API_KEY')
     print("[*] Github api key loaded!")
 
