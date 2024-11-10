@@ -40,6 +40,7 @@ def main():
     parser.add_argument('-s', '--size', type=int, help="The fixed size of an api key")
     parser.add_argument('-o', '--output', type=str, help="Save the api keys in a text file")
     parser.add_argument('-u', '--urls', type=str, help="Save the urls in a text file")
+    parser.add_argument('-p', '--prefix', type=str, help="Select an api key prefix (ex: sk_live_)")
     parser.add_argument('-q', '--quiet', action='store_true', help="Disable verbosity")
     parser.add_argument('--dump', type=str, help="Dump the env files to a specific folder.")
     args = parser.parse_args()
@@ -53,7 +54,7 @@ def main():
     # search the urls and api keys from github
     delay = 0.1 if args.delay is None else int(args.delay) / 1000
     lockpicker = LockPicker(github_api_key=github_api_key, quiet=args.quiet, delay=delay)
-    urls_list, api_keys = lockpicker.search_urls_from_env_variable(args.env_variable, min_size=args.min_size, size=args.size)
+    urls_list, api_keys = lockpicker.search_urls_from_env_variable(args.env_variable, min_size=args.min_size, size=args.size, prefix=args.prefix)
 
     # save the api keys if needed
     if args.output is not None:
@@ -139,27 +140,29 @@ class LockPicker:
         self.delay = delay
 
     # search urls from env file
-    def search_urls_from_env_variable(self, env_variable, min_size=None, size=None):
-        references = self.search_env_variable_from_env_file(env_variable)
+    def search_urls_from_env_variable(self, env_variable, min_size=None, size=None, prefix=None):
+        references = self.search_env_variable_from_env_file(env_variable, prefix=prefix)
         urls_list, api_keys = self.parse_references(references, env_variable, min_size=min_size, size=size)
         if self.quiet != True:
             print(f"[*] {len(api_keys)} api keys were found from {len(urls_list)} urls.")
         return urls_list, api_keys
 
     # search an env variable from an .env file
-    def search_env_variable_from_env_file(self, env_variable):
+    def search_env_variable_from_env_file(self, env_variable, prefix=None):
 
         # build a list of queries
         if self.quiet != True:
             print("[*] Searching references on Github...")
         alnum = "abcdefghijklmnopqrstuvwxyz0123456789"
+        if prefix is None:
+            prefix = ''
         subqueries = [
-            f'"{env_variable}=',        # ENV_VARIABLE=a
-            f'"{env_variable} = ',      # ENV_VARIABLE = a
-            f'"{env_variable}=\'',      # ENV_VARIABLE='a
-            f'"{env_variable} = \'',    # ENV_VARIABLE = 'a
-            f'{env_variable}="',        # ENV_VARIABLE="a
-            f'{env_variable} = "',      # ENV_VARIABLE = "a
+            f'"{env_variable}={prefix}',        # ENV_VARIABLE=a
+            f'"{env_variable} = {prefix}',      # ENV_VARIABLE = a
+            f'"{env_variable}=\'{prefix}',      # ENV_VARIABLE='a
+            f'"{env_variable} = \'{prefix}',    # ENV_VARIABLE = 'a
+            f'{env_variable}="{prefix}',        # ENV_VARIABLE="a
+            f'{env_variable} = "{prefix}',      # ENV_VARIABLE = "a
         ]
 
         # browse each query
@@ -301,7 +304,7 @@ class LockPicker:
             pass
 
         # return the list of urls and api keys
-        return (urls_list, api_keys)
+        return (urls_list, all_api_keys)
     
     # parse a single reference
     def parse_reference(self, url, env_variable, min_size=None, size=None):
