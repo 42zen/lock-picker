@@ -47,7 +47,6 @@ def main():
 
     # load the github api key
     load_dotenv(join(getcwd(), '.env'))
-    load_dotenv()
     github_api_key = getenv('GITHUB_API_KEY')
     print("[*] Github api key loaded!")
 
