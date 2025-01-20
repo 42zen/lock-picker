@@ -156,10 +156,14 @@ class LockPicker:
         if prefix is None:
             prefix = ''
         subqueries = [
-            f'"{env_variable}={prefix}',        # ENV_VARIABLE=a
-            f'"{env_variable} = {prefix}',      # ENV_VARIABLE = a
-            f'"{env_variable}=\'{prefix}',      # ENV_VARIABLE='a
-            f'"{env_variable} = \'{prefix}',    # ENV_VARIABLE = 'a
+            f'{env_variable}={prefix}',         # ENV_VARIABLE=a
+            f'{env_variable} = {prefix}',       # ENV_VARIABLE = a
+            f'"{env_variable}={prefix}',        # "ENV_VARIABLE=a"
+            f'"{env_variable} = {prefix}',      # "ENV_VARIABLE = a"
+            f'{env_variable}=\'{prefix}',       # ENV_VARIABLE='a
+            f'{env_variable} = \'{prefix}',     # ENV_VARIABLE = 'a
+            f'"{env_variable}=\'{prefix}',      # "ENV_VARIABLE='a"
+            f'"{env_variable} = \'{prefix}',    # "ENV_VARIABLE = 'a"
             f'{env_variable}="{prefix}',        # ENV_VARIABLE="a
             f'{env_variable} = "{prefix}',      # ENV_VARIABLE = "a
         ]
